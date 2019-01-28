@@ -16,7 +16,8 @@ def skeleton(contour, engine="auto", with_timing=False):
             * other engines are not supported at
         with_timing (``boolean``): (optional) Whether to time the code
 
-    Returns: The output skeleton, numpy array of N x 4, where N is the number of lines
+    Returns: The output skeleton, vertices numpy array of N x 2, where N is the number of vertices
+                                  edges    numpy array of N x 2, where N is the number of edges(indices of vertices)
     (and running time if `with_timing` is true.)
     """
 
@@ -34,10 +35,10 @@ def skeleton(contour, engine="auto", with_timing=False):
         finish_time = time();
         running_time = finish_time - start_time;
 
-    edges = engine.get_edges();
-    
+    edges    = engine.get_edges();
+    vertices = engine.get_vertices();
     if with_timing:
-        return edges, running_time;
+        return edges, vertices, running_time;
     else:
-        return edges;
+        return edges, vertices;
     

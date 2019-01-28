@@ -29,32 +29,54 @@ void CreateSkeleton2::run(const MatrixFr& points)
         poly.push_back( Point(v[0],v[1]) );
     }
 
-    std::vector<std::pair<Point,Point>> skeleton_edges;
+    std::vector<Point>                          skeleton_points;   //skeliton points
+    std::set<std::set<std::size_t>>             skeleton_edges;    //skeleton edges represented as point indices 
 
     //compute skeleton
     SsPtr ss = CGAL::create_interior_straight_skeleton_2(poly.vertices_begin(), poly.vertices_end());
 
+    std::map<size_t,Point> skeleton_map_points;//tmp object
     typedef typename Ss::Halfedge_const_iterator Halfedge_const_iterator;
     for ( Halfedge_const_iterator i = ss->halfedges_begin(); i != ss->halfedges_end(); ++i )
     {
-        CGAL::Point_2<K> pt1 = i->opposite()->vertex()->point();
-        CGAL::Point_2<K> pt2 = i->vertex()->point();
         if( i->is_bisector() )
         {
-            skeleton_edges.push_back(std::make_pair(Point(pt1.x(),pt1.y()),Point(pt2.x(),pt2.y())));
+            std::set<std::size_t> edge;
+            edge.insert(i->opposite()->vertex()->id());
+            edge.insert(i->vertex()->id());
+            skeleton_edges.insert(edge);
+            skeleton_map_points[i->vertex()->id()]             = i->vertex()->point();
+            skeleton_map_points[i->opposite()->vertex()->id()] = i->opposite()->vertex()->point();
         }
     }
 
-    size_t num_skeleton_edges = skeleton_edges.size();
-    Matrix4Fr computed_edges(num_skeleton_edges,4); //this is the format that has to be returned
-    for(size_t index = 0; index < num_skeleton_edges; ++index)
+    // perform re indiexing and populate vertices
+    std::map<size_t,size_t> re_index;
+    for( const auto& skeleton_map_point : skeleton_map_points )
     {
-        computed_edges(index,0) = skeleton_edges[index].first.x();
-        computed_edges(index,1) = skeleton_edges[index].first.y();
-        computed_edges(index,2) = skeleton_edges[index].second.x();
-        computed_edges(index,3) = skeleton_edges[index].second.y();
+        re_index[skeleton_map_point.first] = re_index.size()-1;
+        skeleton_points.push_back(skeleton_map_point.second);
     }
 
+    num_vertices = skeleton_points.size();
+    Matrix2Fr computed_vertices(num_vertices,2);
+    for(size_t index = 0; index < num_vertices; ++index)
+    {
+        computed_vertices(index,0) = skeleton_points[index].x();
+        computed_vertices(index,1) = skeleton_points[index].y();
+    }
+
+    size_t num_skeleton_edges = skeleton_edges.size();
+    Matrix2Ir computed_edges(num_skeleton_edges,2); //this is the format that has to be returned
+    size_t index = 0;
+    for( const auto& edge : skeleton_edges ){
+        auto it = edge.begin();
+        computed_edges(index,0) = re_index[*it]; it++;
+        computed_edges(index,1) = re_index[*it];
+        index++;
+    }
+
+    m_vertices = std::move(computed_vertices);
     m_edges = std::move(computed_edges);
 }
 

@@ -31,10 +31,12 @@ def main():
                         [300.0,300.0],
                         [100.0,300.0]] );
     
-    skeleton, running_time = pymesh.skeleton(contor, "cgal", True);
+    edges, vertices, running_time = pymesh.skeleton(contor, "cgal", True);
     print("Running time: {}s".format(running_time));
 
-    print("Skeleton : {}".format(skeleton));
+    print("vertices : {}".format(vertices));
+
+    print("edges : {}".format(edges));
     
 if __name__ == "__main__":
     main();
