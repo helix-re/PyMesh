@@ -27,9 +27,11 @@ class SkeletonEngine{
             throw NotImplementedError("This function is not implemented");
         }
 
-        MatrixFr get_edges() const { return m_edges; }
+        MatrixIr get_edges() const { return m_edges; }
+        MatrixFr get_vertices() const { return m_vertices; }
     protected:
-        MatrixFr m_edges;
+        MatrixIr m_edges;
+        MatrixFr m_vertices;
 };
 
 } //namespace PyMesh

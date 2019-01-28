@@ -18,5 +18,6 @@ void init_SkeletonExtraction(py::module& m) {
                 [](py::object){
                 return SkeletonEngine::get_available_engines();})
         .def("run", &SkeletonEngine::run)
-        .def("get_edges", &SkeletonEngine::get_edges);
+        .def("get_edges", &SkeletonEngine::get_edges)
+        .def("get_vertices", &SkeletonEngine::get_vertices);
 }
