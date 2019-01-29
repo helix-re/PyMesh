@@ -26,11 +26,29 @@ def main():
     args = parse_args();
     """
 
-    contor = np.array( [[100.0,100.0],
-                        [300.0,100.0],
-                        [300.0,300.0],
-                        [100.0,300.0]] );
-    
+    # contor = np.array( [[100.0,100.0],
+    #                     [300.0,100.0],
+    #                     [300.0,300.0],
+    #                     [100.0,300.0]] );
+
+    # contor = np.array( [[-1,-1],
+    #                     [0,-12],
+    #                     [1,-1],
+    #                     [12,0],
+    #                     [1,1],
+    #                     [0,12],
+    #                     [-1,1],
+    #                     [-12,0]] );
+
+    contor = np.array( [[100.0, 100.0],
+                        [100.0, 300.0],
+                        [300.0, 300.0],
+                        [300.0, 100.0]] );
+
+
+    #reversed_arr = contor[::-1]
+    print(contor)
+
     edges, vertices, running_time = pymesh.skeleton(contor, "cgal", True);
     print("Running time: {}s".format(running_time));
 
