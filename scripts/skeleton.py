@@ -45,16 +45,21 @@ def main():
                         [300.0, 300.0],
                         [300.0, 100.0]] );
 
-
     #reversed_arr = contor[::-1]
+
+    # self intersection contour
+    # contor = np.array( [[  100,   100],
+    #                     [  200,   100],
+    #                     [  200,   200],
+    #                     [  150,   50]] );
+
     print(contor)
 
     edges, vertices, running_time = pymesh.skeleton(contor, "cgal", True);
+
     print("Running time: {}s".format(running_time));
-
     print("vertices : {}".format(vertices));
-
     print("edges : {}".format(edges));
-    
+
 if __name__ == "__main__":
     main();
