@@ -23,7 +23,7 @@ class SkeletonEngine{
     public:
         virtual ~SkeletonEngine(){}
 
-        virtual void run(const MatrixFr& points) {
+        virtual void run(const MatrixFr& points,const std::vector<MatrixFr>& holes) {
             throw NotImplementedError("This function is not implemented");
         }
 
