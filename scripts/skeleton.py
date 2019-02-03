@@ -50,9 +50,9 @@ def main():
                     [150.0, 150.0],
                     [150.0, 50.0]] );
 
-    #rev_hole = np.flipud(hole) 
+    rev_hole = np.flipud(hole) 
 
-    holes.append(hole)
+    holes.append(rev_hole)
     #reversed_arr = np.flipud(hole)
 
     # self intersection contour

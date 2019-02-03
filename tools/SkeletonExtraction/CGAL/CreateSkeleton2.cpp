@@ -145,7 +145,7 @@ namespace PyMesh
             }
         }
         
-        Polygon_with_holes poly( outer ) ;
+        Polygon_with_holes poly( outer );
 
         for(const auto& ei_hole : holes){
 
@@ -243,7 +243,34 @@ namespace PyMesh
 
 void CreateSkeleton2::run(const MatrixFr& points, const std::vector<MatrixFr>& holes)
 {
-    bool direction = find::direction(points);
+    bool direction(true);
+    {
+        // logic to fix the direction
+        {
+            std::vector<MatrixFr> tmp_holes;
+            Matrix2Fr tmp_vertices;
+            Matrix2Ir tmp_edges;
+            compute_skeleton(points,
+                    tmp_holes,
+                    direction,
+                    tmp_vertices,
+                    tmp_edges);
+            /*
+            * TODO: THIS IS A HACK
+            * FIX IT PROPERLY BY CREATING CONVEX POLYGON DATA STRUCTURE WITH CONNECTIVITY INFORMATION
+            */
+            if(!validate_vertices(tmp_vertices))
+            {
+                direction = false;
+            }
+            else if( holes.empty() )
+            {
+                m_vertices = std::move(tmp_vertices);
+                m_edges = std::move(tmp_edges);
+                return;
+            }
+        }
+    }
 
     Matrix2Fr computed_vertices;
     Matrix2Ir computed_edges;
