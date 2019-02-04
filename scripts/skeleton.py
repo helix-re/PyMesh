@@ -39,13 +39,21 @@ def main():
     #                     [0,12],
     #                     [-1,1],
     #                     [-12,0]] );
-
+    holes = list()
     contor = np.array( [[100.0, 100.0],
                         [100.0, 300.0],
                         [300.0, 300.0],
                         [300.0, 100.0]] );
 
-    #reversed_arr = contor[::-1]
+    hole = np.array( [[50.0, 50.0],
+                    [50.0, 150.0],
+                    [150.0, 150.0],
+                    [150.0, 50.0]] );
+
+    rev_hole = np.flipud(hole) 
+
+    holes.append(rev_hole)
+    #reversed_arr = np.flipud(hole)
 
     # self intersection contour
     # contor = np.array( [[  100,   100],
@@ -55,7 +63,9 @@ def main():
 
     print(contor)
 
-    edges, vertices, running_time = pymesh.skeleton(contor, "cgal", True);
+    print(holes)
+    
+    edges, vertices, running_time = pymesh.skeleton(contor, holes, "cgal", True);
 
     print("Running time: {}s".format(running_time));
     print("vertices : {}".format(vertices));
