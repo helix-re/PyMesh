@@ -4,10 +4,22 @@ using namespace PyMesh;
 
 const double Lattice2D::DOUBLE_PRECISION = 0.001;
 
-
-Lattice2D::Lattice2D(const Matrix4Fr& edges,
+Lattice2D::Lattice2D(const MatrixFr& mat,
+                     const bool& contour,
                      const double& precision)
                      :m_precision(precision)
+{
+    if(contour)
+    {
+        PopulateContour(mat);
+    }
+    else
+    {
+        PopulateEdges(mat);
+    }
+}
+
+void Lattice2D::PopulateEdges(const Matrix4Fr& edges)
 {
     std::size_t num_edges = edges.rows();
     for (std::size_t index=0; index<num_edges; ++index) 
@@ -19,8 +31,8 @@ Lattice2D::Lattice2D(const Matrix4Fr& edges,
     }
 }
 
-Lattice2D::Lattice2D(const Matrix2Fr& contour, const double& precision)
-:m_precision(precision)
+
+void Lattice2D::PopulateContour(const Matrix2Fr& contour)
 {
     std::size_t num_vertices = contour.rows();
     if(num_vertices < 2)
@@ -39,8 +51,8 @@ Lattice2D::Lattice2D(const Matrix2Fr& contour, const double& precision)
     AddEdge(point1,point2);
 }
 
-Lattice2D::Lattice2D(const Matrix2Ir& edges,
-          const Matrix2Fr vertices,
+Lattice2D::Lattice2D(const MatrixIr& edges,
+          const MatrixFr vertices,
           const double& precision)
           :m_precision(precision)
 {
@@ -60,7 +72,7 @@ Lattice2D::Lattice2D(const double& precision)
 {
 }
 
-int Lattice2D::AddEdge(const Vector2F& point1, const Vector2F& point2)
+int Lattice2D::AddEdge(const VectorF& point1, const VectorF& point2)
 {
     std::set<unsigned int> edge_set;
     edge_set.insert(AddPoint(point1));
@@ -99,10 +111,10 @@ int Lattice2D::AddEdge(const Vector2F& point1, const Vector2F& point2)
     return it->second;
 }
 
-std::pair<Matrix2Ir,Matrix2Fr> Lattice2D::get_lattice()
+std::pair<MatrixIr,MatrixFr> Lattice2D::get_lattice()
 {
     auto num_vertices = m_vertices.size();
-    Matrix2Fr vertices(num_vertices,2);
+    MatrixFr vertices(num_vertices,2);
     for(size_t index = 0; index < num_vertices; ++index)
     {
         vertices(index,0) = m_vertices[index].x();
@@ -110,7 +122,7 @@ std::pair<Matrix2Ir,Matrix2Fr> Lattice2D::get_lattice()
     }
 
     size_t num_edges = m_edges.size();
-    Matrix2Ir edges(num_edges,2);
+    MatrixIr edges(num_edges,2);
     for(size_t index = 0; index < num_edges; ++index)
     {
         edges(index,0) = m_edges[index].first;
@@ -155,7 +167,7 @@ unsigned int Lattice2D::AddPoint(const Vector2F& point)
     return it->second;
 }
 
-int Lattice2D::GetPointIndex(const Vector2F& point)
+int Lattice2D::GetPointIndex(const VectorF& point)
 {
     Vector2F precise_point = point;
     Setprecision(precise_point);

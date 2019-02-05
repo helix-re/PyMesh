@@ -20,17 +20,14 @@ public:
 /*
 * creates lattice structure with edges given as points
 */
-Lattice2D(const Matrix4Fr& edges, const double& precision = DOUBLE_PRECISION);
-/*
-* creates lattice structure where input is contour represented as points
-*/
-Lattice2D(const Matrix2Fr& contour, const double& precision = DOUBLE_PRECISION);
+Lattice2D(const MatrixFr& mat, const bool& contour, const double& precision = DOUBLE_PRECISION);
+
 /*
 * creates lattice with 
 * points and edges given as point indices
 */
-Lattice2D(const Matrix2Ir& edges,
-          const Matrix2Fr vertices, 
+Lattice2D(const MatrixIr& edges,
+          const MatrixFr vertices, 
           const double& precision = DOUBLE_PRECISION);
 /*
 * default constructor
@@ -41,18 +38,27 @@ Lattice2D(const double& precision = DOUBLE_PRECISION);
 * adds edge to lattice
 * returns -1 if it fails to add
 */
-int AddEdge(const Vector2F& point1, const Vector2F& point2);
+int AddEdge(const VectorF& point1, const VectorF& point2);
 /*
 * returns basic representation of contour
 */
-std::pair< Matrix2Ir,Matrix2Fr > get_lattice();
+std::pair< MatrixIr,MatrixFr > get_lattice();
 /*
 * returns point index
 * if point not found it returns -1
 */
-int GetPointIndex(const Vector2F& point);
+int GetPointIndex(const VectorF& point);
 
 protected:
+/*
+* populates edges
+*/
+void PopulateEdges(const Matrix4Fr& edges);
+/*
+* populates contour
+*/
+void PopulateContour(const Matrix2Fr& contour);
+
 /*
 * adds and returns index of added point
 */
