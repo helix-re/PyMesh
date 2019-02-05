@@ -48,7 +48,11 @@ std::pair< MatrixIr,MatrixFr > get_lattice();
 * if point not found it returns -1
 */
 int GetPointIndex(const VectorF& point);
-
+/*
+* builds connections
+* NOTE: this function calling is only needed if AddEdge functions is used to populate lattice
+*/
+void BuildConnections();
 protected:
 /*
 * populates edges
@@ -71,7 +75,14 @@ void Setprecision(Vector2F& point);
 * applies precision
 */ 
 double Setprecision(double val);
-
+/*
+* builds vertex connections
+*/
+void BuildVertexConnections();
+/*
+* builds edge connections
+*/
+void BuildEdgeConnections();
 protected:
 /*
 * vertices map
@@ -104,10 +115,12 @@ std::map<unsigned int,std::pair<unsigned int, unsigned int>> m_edges;
 std::map<std::pair<unsigned int, unsigned int>,unsigned int> m_edge_indicies;
 /*
 * vertex to vertex connetions
+* set is connected vertex indicies
 */
 std::map<unsigned int,std::set<unsigned int>> m_vertex_vertex_connections;
 /*
 * vertex to edge connections
+* set is connected edge indicies
 */
 std::map<unsigned int,std::set<unsigned int>> m_vertex_edge_connections;
 /*

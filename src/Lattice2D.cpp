@@ -17,6 +17,7 @@ Lattice2D::Lattice2D(const MatrixFr& mat,
     {
         PopulateEdges(mat);
     }
+    BuildConnections();
 }
 
 void Lattice2D::PopulateEdges(const Matrix4Fr& edges)
@@ -65,6 +66,7 @@ Lattice2D::Lattice2D(const MatrixIr& edges,
         Vector2F point2(vertices.row(edges.row(index)[1])[0],vertices.row(edges.row(index)[1])[1]);
         AddEdge(point1,point2);
     }
+    BuildConnections();
 }
 
 Lattice2D::Lattice2D(const double& precision)
@@ -177,4 +179,76 @@ int Lattice2D::GetPointIndex(const VectorF& point)
         return it->second;
     }
     return -1;
+}
+
+void Lattice2D::BuildVertexConnections()
+{
+    m_vertex_vertex_connections = std::map<unsigned int,std::set<unsigned int>>();
+
+    for( const auto& edge : m_edges )
+    {
+        const auto& vertices_pr = edge.second;
+        auto it1 = m_vertex_vertex_connections.find( vertices_pr.first );
+        if( it1 == m_vertex_vertex_connections.end() )
+        {
+            std::set<unsigned int> connections;
+            connections.insert(vertices_pr.second);
+            m_vertex_vertex_connections[vertices_pr.first] = connections;
+        }
+        else
+        {
+            it1->second.insert(vertices_pr.second);
+        }
+        auto it2 = m_vertex_vertex_connections.find( vertices_pr.second );
+        if( it2 == m_vertex_vertex_connections.end() )
+        {
+            std::set<unsigned int> connections;
+            connections.insert(vertices_pr.first);
+            m_vertex_vertex_connections[vertices_pr.second] = connections;
+        }
+        else
+        {
+            it2->second.insert(vertices_pr.first);
+        }
+    }
+}
+
+void Lattice2D::BuildEdgeConnections()
+{
+    m_vertex_edge_connections = std::map<unsigned int,std::set<unsigned int>>();
+
+    for( const auto& edge : m_edges )
+    {
+        const auto& edge_index = edge.first;
+        const auto& vertices_pr = edge.second;
+        auto it1 = m_vertex_edge_connections.find( vertices_pr.first );
+        if( it1 == m_vertex_edge_connections.end() )
+        {
+            std::set<unsigned int> connections;
+            connections.insert(edge_index);
+            m_vertex_edge_connections[vertices_pr.first] = connections;
+        }
+        else
+        {
+            m_vertex_edge_connections[vertices_pr.first].insert(edge_index);
+        }
+
+        auto it2 = m_vertex_edge_connections.find( vertices_pr.second );
+        if( it2 == m_vertex_edge_connections.end() )
+        {
+            std::set<unsigned int> connections;
+            connections.insert(edge_index);
+            m_vertex_edge_connections[vertices_pr.second] = connections;
+        }
+        else
+        {
+            m_vertex_edge_connections[vertices_pr.second].insert(edge_index);
+        }
+    }
+}
+
+void Lattice2D::BuildConnections()
+{
+    BuildVertexConnections();
+    BuildEdgeConnections();
 }
