@@ -7,7 +7,7 @@ const double Lattice2D::DOUBLE_PRECISION = 0.001;
 
 Lattice2D::Lattice2D(const Matrix4Fr& edges,
                      const double& precision)
-                     :m_presision(precision)
+                     :m_precision(precision)
 {
     std::size_t num_edges = edges.rows();
     for (std::size_t index=0; index<num_edges; ++index) 
@@ -20,15 +20,15 @@ Lattice2D::Lattice2D(const Matrix4Fr& edges,
 }
 
 Lattice2D::Lattice2D(const Matrix2Fr& contour, const double& precision)
-:m_presision(precision)
+:m_precision(precision)
 {
     std::size_t num_vertices = contour.rows();
     if(num_vertices < 2)
     {
-        // too few vertices nothing to be done
+        // too few vertices, nothing to be done
         return; 
     }
-    for(std::size_t index = 0; index < num_vertices-1; ++index)
+    for(std::size_t index = 0; index<num_vertices-1; ++index)
     {
         Vector2F point1(contour.row(index)[0],contour.row(index)[1]);
         Vector2F point2(contour.row(index+1)[0],contour.row(index+1)[1]);
@@ -42,7 +42,7 @@ Lattice2D::Lattice2D(const Matrix2Fr& contour, const double& precision)
 Lattice2D::Lattice2D(const Matrix2Ir& edges,
           const Matrix2Fr vertices,
           const double& precision)
-          :m_presision(precision)
+          :m_precision(precision)
 {
     //constructor might crash if there is a missmatch in the edges and vertices
     std::size_t num_edges = edges.rows();
@@ -56,7 +56,7 @@ Lattice2D::Lattice2D(const Matrix2Ir& edges,
 }
 
 Lattice2D::Lattice2D(const double& precision)
-:m_presision(precision)
+:m_precision(precision)
 {
 }
 
@@ -101,7 +101,6 @@ int Lattice2D::AddEdge(const Vector2F& point1, const Vector2F& point2)
 
 std::pair<Matrix2Ir,Matrix2Fr> Lattice2D::get_lattice()
 {
-    
     auto num_vertices = m_vertices.size();
     Matrix2Fr vertices(num_vertices,2);
     for(size_t index = 0; index < num_vertices; ++index)
@@ -122,7 +121,7 @@ std::pair<Matrix2Ir,Matrix2Fr> Lattice2D::get_lattice()
 
 double Lattice2D::Setprecision(double val)
 {
-    double ret = m_presision * ceil( val / m_presision );
+    double ret = m_precision * ceil( val / m_precision );
 	if ( std::isnan(ret) || !std::isfinite(ret) )
 	{
 		ret = 0.0;
@@ -139,7 +138,7 @@ void Lattice2D::Setprecision(Vector2F& point)
 unsigned int Lattice2D::AddPoint(const Vector2F& point)
 {
     Vector2F precise_point = point;
-    
+
     Setprecision(precise_point);
 
     auto it = m_vertex_indices.find(point);

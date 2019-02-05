@@ -107,7 +107,7 @@ std::map<unsigned int,std::set<unsigned int>> m_vertex_edge_connections;
 /*
 * current precision
 */
-const double m_presision;
+const double m_precision;
 };
 
 }
