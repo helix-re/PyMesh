@@ -1,4 +1,5 @@
 #include "Lattice2D.h"
+#include <Core/Exception.h>
 
 using namespace PyMesh;
 
@@ -31,7 +32,6 @@ void Lattice2D::PopulateEdges(const Matrix4Fr& edges)
         AddEdge(point1,point2);
     }
 }
-
 
 void Lattice2D::PopulateContour(const Matrix2Fr& contour)
 {
@@ -76,18 +76,18 @@ Lattice2D::Lattice2D(const double& precision)
 
 int Lattice2D::AddEdge(const VectorF& point1, const VectorF& point2)
 {
-    std::set<unsigned int> edge_set;
-    edge_set.insert(AddPoint(point1));
-    edge_set.insert(AddPoint(point2));
+    std::map<unsigned int,bool> edge_map;
+    edge_map.insert(AddPoint(point1));
+    edge_map.insert(AddPoint(point2));
 
-    auto num_edge_points = edge_set.size();
+    auto num_edge_points = edge_map.size();
     if(  num_edge_points !=2 )
     {
         //
         // edge might be smaller than the precision
         // two points might have collapsed to the same point
         //
-        if( num_edge_points == 1 )
+        if( num_edge_points == 1 && edge_map.begin()->second )
         {
             //here added point should be deleted
             m_vertices.erase(std::prev(m_vertices.end(), 1));
@@ -98,8 +98,9 @@ int Lattice2D::AddEdge(const VectorF& point1, const VectorF& point2)
         //hence nothing to do
         return -1;
     }
-    auto it_set = edge_set.begin();
-    std::pair<unsigned int,unsigned int> edge_pair{*it_set,*(it_set++)};
+
+    auto it_map = edge_map.begin();
+    std::pair<unsigned int,unsigned int> edge_pair{it_map->first,(++it_map)->first};
 
     auto it = m_edge_indicies.find(edge_pair);
     // new edge so add else ignore
@@ -113,7 +114,7 @@ int Lattice2D::AddEdge(const VectorF& point1, const VectorF& point2)
     return it->second;
 }
 
-std::pair<MatrixIr,MatrixFr> Lattice2D::get_lattice()
+std::pair<MatrixIr,MatrixFr> Lattice2D::GetLattice()
 {
     auto num_vertices = m_vertices.size();
     MatrixFr vertices(num_vertices,2);
@@ -149,7 +150,7 @@ void Lattice2D::Setprecision(Vector2F& point)
     point[1] = Setprecision(point[1]);
 }
 
-unsigned int Lattice2D::AddPoint(const Vector2F& point)
+std::pair<unsigned int,bool> Lattice2D::AddPoint(const Vector2F& point)
 {
     Vector2F precise_point = point;
 
@@ -163,22 +164,10 @@ unsigned int Lattice2D::AddPoint(const Vector2F& point)
         std::pair<unsigned int, Vector2F> pr = {m_vertices.size(),precise_point};
         m_vertices.insert(pr);
         m_vertex_indices.insert({pr.second,pr.first});
-        return pr.first;
+        return {pr.first,true};
     }
     // point was already present
-    return it->second;
-}
-
-int Lattice2D::GetPointIndex(const VectorF& point)
-{
-    Vector2F precise_point = point;
-    Setprecision(precise_point);
-    auto it = m_vertex_indices.find(precise_point);
-    if(it != m_vertex_indices.end())
-    {
-        return it->second;
-    }
-    return -1;
+    return {it->second,false};
 }
 
 void Lattice2D::BuildVertexConnections()
@@ -251,4 +240,75 @@ void Lattice2D::BuildConnections()
 {
     BuildVertexConnections();
     BuildEdgeConnections();
+}
+
+unsigned int Lattice2D::GetVertexIndex(const VectorF& point)
+{
+    Vector2F precise_point = point;
+    Setprecision(precise_point);
+    auto it = m_vertex_indices.find(precise_point);
+    if(it != m_vertex_indices.end())
+    {
+        return it->second;
+    }
+    std::stringstream err_msg;
+    err_msg << "Vertex not found";
+    throw RuntimeError(err_msg.str());
+}
+
+VectorF Lattice2D::GetVertex(unsigned int index)
+{
+    auto it = m_vertices.find(index);
+    if(it != m_vertices.end())
+    {
+        return it->second;
+    }
+
+    std::stringstream err_msg;
+    err_msg << "Vertex not found, vertex_index=" << index << " number of vertices : " << m_vertices.size();
+    throw RuntimeError(err_msg.str());
+}
+
+std::pair<unsigned int, unsigned int> Lattice2D::GetEdge(unsigned int index)
+{
+    auto it = m_edges.find(index);
+
+    if(it != m_edges.end())
+    {
+        return it->second;
+    }
+
+    std::stringstream err_msg;
+    err_msg << "Edge not found, edge_index=" << index << " number of edges : " << m_edges.size();
+    throw RuntimeError(err_msg.str());
+}
+
+std::set<unsigned int> Lattice2D::GetVertexConnections(unsigned int vertex_index)
+{
+    auto it = m_vertex_vertex_connections.find(vertex_index);
+
+    if(it != m_vertex_vertex_connections.end())
+    {
+        return it->second;
+    }
+
+    std::stringstream err_msg;
+    err_msg << "vertex connections not found, vertex_index=" << vertex_index 
+            << " number of vertex to set of vertices connection : " << m_vertex_vertex_connections.size();
+    throw RuntimeError(err_msg.str());
+}
+
+std::set<unsigned int> Lattice2D::GetEdgeConnections(unsigned int vertex_index)
+{
+    auto it = m_vertex_edge_connections.find(vertex_index);
+
+    if(it != m_vertex_edge_connections.end())
+    {
+        return it->second;
+    }
+
+    std::stringstream err_msg;
+    err_msg << "edge connections not found, vertex_index=" << vertex_index 
+            << " number of vertex to set of edge connection : " << m_vertex_edge_connections.size();
+    throw RuntimeError(err_msg.str());
 }

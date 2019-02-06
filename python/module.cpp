@@ -8,6 +8,8 @@ namespace py = pybind11;
 
 void init_Mesh(py::module&);
 void init_MeshFactory(py::module&);
+void init_Lattice2D(py::module&);
+void init_Lattice2DFactory(py::module&);
 void init_MeshWriter(py::module&);
 void init_MeshUtils(py::module&);
 void init_predicates(py::module&);
@@ -41,8 +43,11 @@ PYBIND11_MODULE(PyMesh, m) {
 
     init_Mesh(m);
     init_MeshFactory(m);
-    init_MeshWriter(m);
 
+    init_Lattice2D(m);
+    init_Lattice2DFactory(m);
+
+    init_MeshWriter(m);
     init_MeshUtils(m);
     init_predicates(m);
     init_ConvexHull(m);
