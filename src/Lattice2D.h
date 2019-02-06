@@ -87,6 +87,14 @@ std::set<unsigned int> GetVertexConnections(unsigned int vertex_index);
 * set of edge indices
 */
 std::set<unsigned int> GetEdgeConnections(unsigned int vertex_index);
+/*
+* returns number of vertices
+*/
+unsigned int GetNumVertices();
+/*
+* returns number of vertices
+*/
+unsigned int GetNumEdges();
 
 protected:
 /*

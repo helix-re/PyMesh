@@ -312,3 +312,13 @@ std::set<unsigned int> Lattice2D::GetEdgeConnections(unsigned int vertex_index)
             << " number of vertex to set of edge connection : " << m_vertex_edge_connections.size();
     throw RuntimeError(err_msg.str());
 }
+
+unsigned int Lattice2D::GetNumVertices()
+{
+    return m_vertices.size();
+}
+
+unsigned int Lattice2D::GetNumEdges()
+{
+    return m_edges.size();
+}
