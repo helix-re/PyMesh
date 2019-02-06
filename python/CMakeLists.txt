@@ -13,6 +13,8 @@ PYBIND11_ADD_MODULE(PyMesh module.cpp
     PyMeshUtils.cpp
     PyMesh.cpp
     PyMeshFactory.cpp
+    PyLattice2D.cpp
+    PyLattice2DFactory.cpp
     PyMeshWriter.cpp
     PyOuterHull.cpp
     PyPredicates.cpp

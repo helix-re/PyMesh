@@ -13,12 +13,21 @@ namespace PyMesh {
 
 class Lattice2D {
 
-public:
-const static double DOUBLE_PRECISION;
+// Use Lattice2DFactory class to create Lattice2D object.
+friend class Lattice2DFactory;
 
 public:
+const static double DOUBLE_PRECISION;
+typedef std::shared_ptr<Lattice2D> Ptr;
+
+protected:
+
+Lattice2D(Lattice2D& other) = delete;
+Lattice2D& operator=(Lattice2D& other) = delete;
+
 /*
 * creates lattice structure with edges given as points
+* or closed contour given as points
 */
 Lattice2D(const MatrixFr& mat, const bool& contour, const double& precision = DOUBLE_PRECISION);
 
@@ -29,30 +38,64 @@ Lattice2D(const MatrixFr& mat, const bool& contour, const double& precision = DO
 Lattice2D(const MatrixIr& edges,
           const MatrixFr vertices, 
           const double& precision = DOUBLE_PRECISION);
+
 /*
 * default constructor
 * needed to support AddEdge function
 */
 Lattice2D(const double& precision = DOUBLE_PRECISION);
+
+public: 
 /*
 * adds edge to lattice
 * returns -1 if it fails to add
 */
 int AddEdge(const VectorF& point1, const VectorF& point2);
+
+/*
+* builds connections
+* NOTE: this function is needed only if AddEdge functions is used to populate lattice
+*/
+void BuildConnections();
+
 /*
 * returns basic representation of contour
 */
-std::pair< MatrixIr,MatrixFr > get_lattice();
+std::pair< MatrixIr,MatrixFr > GetLattice();
 /*
-* returns point index
-* if point not found it returns -1
+* returns vertex index
+* throws exception if vertex is not found
 */
-int GetPointIndex(const VectorF& point);
+unsigned int GetVertexIndex(const VectorF& point);
 /*
-* builds connections
-* NOTE: this function calling is only needed if AddEdge functions is used to populate lattice
+* returns point
+* throws exception if vertex is not found
 */
-void BuildConnections();
+VectorF GetVertex(unsigned int index);
+/*
+* returns edge
+* throws exception if edge is not found
+*/
+std::pair<unsigned int, unsigned int> GetEdge(unsigned int index);
+/*
+* returns vertex connections of a given vertex index
+* set of vertex indices
+*/
+std::set<unsigned int> GetVertexConnections(unsigned int vertex_index);
+/*
+* returns edge connections of a given vertex index
+* set of edge indices
+*/
+std::set<unsigned int> GetEdgeConnections(unsigned int vertex_index);
+/*
+* returns number of vertices
+*/
+unsigned int GetNumVertices();
+/*
+* returns number of vertices
+*/
+unsigned int GetNumEdges();
+
 protected:
 /*
 * populates edges
@@ -66,7 +109,7 @@ void PopulateContour(const Matrix2Fr& contour);
 /*
 * adds and returns index of added point
 */
-unsigned int AddPoint(const Vector2F& point);
+std::pair<unsigned int,bool> AddPoint(const Vector2F& point);
 /*
 * applies precision
 */

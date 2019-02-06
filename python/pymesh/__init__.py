@@ -17,6 +17,8 @@ logging.getLogger(__name__).addHandler(NullHandler())
 
 from .Mesh import Mesh
 from .meshio import load_mesh, form_mesh, save_mesh, save_mesh_raw
+from .Lattice2D import Lattice2D
+from .create_lattice2d import create_lattice2d, create_empty_lattice2d, create_contour_lattice2d, create_edge_vertices_lattice2d
 from .Arrangement2 import Arrangement2
 from .Assembler import Assembler
 from .boolean import boolean
@@ -56,6 +58,7 @@ from .map_attributes import map_corner_attribute
 
 __all__ = [
         "Mesh",
+        "Lattice2D"
         "Assembler",
         "load_mesh",
         "form_mesh",
