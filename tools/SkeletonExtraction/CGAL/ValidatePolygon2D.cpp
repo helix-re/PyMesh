@@ -1,0 +1,49 @@
+#include "ValidatePolygon2D.h"
+
+#include<CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include<CGAL/Polygon_2.h>
+
+typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
+typedef K::Point_2                                          Point;
+typedef CGAL::Polygon_2<K>                                  Polygon_2;
+
+using namespace PyMesh;
+
+ValidatePolygon2D::result ValidatePolygon2D::compute(const Lattice2D::Ptr& lattice)
+{
+    Polygon_2 poly;
+
+    std::vector<unsigned int> indicies = lattice->GetContourIndices();
+
+    if( indicies.empty() ) return ValidatePolygon2D::result::EMPTY_LATTICE;
+
+    for(auto& index : indicies)
+    {
+        auto v =  lattice->GetVertex(index);
+        Point point(v[0],v[1]);
+        poly.push_back(std::move(point));
+    }
+
+    if( poly.is_empty() ) return ValidatePolygon2D::result::EMPTY_LATTICE;
+
+    if( !poly.is_simple() ) return ValidatePolygon2D::result::NOT_SIMPLE;
+
+    if( poly.is_collinear_oriented() ) return ValidatePolygon2D::result::COLLINEAR;
+
+    //check non manifold scenario for the contour
+    for(auto& index : indicies)
+    {
+        if( lattice->GetVertexConnections(index).size() != 2 )
+        {
+            return ValidatePolygon2D::result::NON_MANIFOLD;
+        }
+        if( lattice->GetEdgeConnections(index).size()   != 2 )
+        {
+            return ValidatePolygon2D::result::NON_MANIFOLD;
+        }
+    }
+
+    if( poly.is_counterclockwise_oriented() ) return ValidatePolygon2D::result::COUNTERCLOCKWISE;
+
+    return ValidatePolygon2D::result::SUCCESS;
+}

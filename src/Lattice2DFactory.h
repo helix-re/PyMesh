@@ -1,7 +1,5 @@
 #pragma once
 #include <string>
-#include <Core/EigenTypedef.h>
-
 #include <Lattice2D.h>
 
 namespace PyMesh {

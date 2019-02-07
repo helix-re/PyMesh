@@ -8,6 +8,7 @@
 #include <set>
 
 #include <Core/EigenTypedef.h>
+#include <Core/Exception.h>
 
 namespace PyMesh {
 
@@ -48,9 +49,11 @@ Lattice2D(const double& precision = DOUBLE_PRECISION);
 public: 
 /*
 * adds edge to lattice
+* @return edge index, pair of vertex indices
 * returns -1 if it fails to add
 */
-int AddEdge(const VectorF& point1, const VectorF& point2);
+std::pair<int,std::pair<unsigned int, unsigned int>>
+AddEdge(const VectorF& point1, const VectorF& point2);
 
 /*
 * builds connections
@@ -61,41 +64,48 @@ void BuildConnections();
 /*
 * returns basic representation of contour
 */
-std::pair< MatrixIr,MatrixFr > GetLattice();
+std::pair< MatrixIr,MatrixFr > GetLattice() const;
 /*
 * returns vertex index
 * throws exception if vertex is not found
 */
-unsigned int GetVertexIndex(const VectorF& point);
+unsigned int GetVertexIndex(const VectorF& point) const;
 /*
 * returns point
 * throws exception if vertex is not found
 */
-VectorF GetVertex(unsigned int index);
+VectorF GetVertex(unsigned int index) const;
 /*
 * returns edge
 * throws exception if edge is not found
 */
-std::pair<unsigned int, unsigned int> GetEdge(unsigned int index);
+std::pair<unsigned int, unsigned int> GetEdge(unsigned int index) const;
 /*
 * returns vertex connections of a given vertex index
 * set of vertex indices
 */
-std::set<unsigned int> GetVertexConnections(unsigned int vertex_index);
+std::set<unsigned int> GetVertexConnections(unsigned int vertex_index) const;
 /*
 * returns edge connections of a given vertex index
 * set of edge indices
 */
-std::set<unsigned int> GetEdgeConnections(unsigned int vertex_index);
+std::set<unsigned int> GetEdgeConnections(unsigned int vertex_index) const;
 /*
 * returns number of vertices
 */
-unsigned int GetNumVertices();
+unsigned int GetNumVertices() const;
 /*
 * returns number of vertices
 */
-unsigned int GetNumEdges();
-
+unsigned int GetNumEdges() const;
+/*
+* returns contour indices
+*/
+std::vector<unsigned int> GetContourIndices() const;
+/*
+* reverses contour
+*/
+void ReverseContour();
 protected:
 /*
 * populates edges
@@ -113,11 +123,11 @@ std::pair<unsigned int,bool> AddPoint(const Vector2F& point);
 /*
 * applies precision
 */
-void Setprecision(Vector2F& point);
+void Setprecision(Vector2F& point) const;
 /*
 * applies precision
 */ 
-double Setprecision(double val);
+double Setprecision(double val) const;
 /*
 * builds vertex connections
 */
@@ -170,6 +180,11 @@ std::map<unsigned int,std::set<unsigned int>> m_vertex_edge_connections;
 * current precision
 */
 const double m_precision;
+/*
+* contour indices
+* this is populated if the input is given as contour
+*/
+std::vector<unsigned int> m_contour_indicies;
 };
 
 }
