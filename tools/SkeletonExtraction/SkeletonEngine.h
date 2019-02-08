@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <string>
-
+#include <Core/Exception.h>
 #include <Lattice2D.h>
 
 namespace PyMesh {

@@ -18,5 +18,9 @@ void init_Lattice2D(py::module &m) {
         .def("GetVertexConnections", &Lattice2D::GetVertexConnections)
         .def("GetEdgeConnections", &Lattice2D::GetEdgeConnections)
         .def("GetNumVertices", &Lattice2D::GetNumVertices)
-        .def("GetNumEdges", &Lattice2D::GetNumEdges);
+        .def("GetNumEdges", &Lattice2D::GetNumEdges)
+        .def("GetContourIndices", &Lattice2D::GetContourIndices)
+        .def("ReverseContour", &Lattice2D::ReverseContour)
+        .def("ToString", &Lattice2D::ToString)
+        .def("__repr__",&Lattice2D::ToString);
 }

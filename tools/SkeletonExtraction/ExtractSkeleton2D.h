@@ -18,7 +18,7 @@ public:
 protected:
 
     /*
-    * validates contour and fixes it possilbe
+    * validates contour and fixes
     * 
     */
     ValidatePolygon2D::result validate_and_fix( Lattice2D::Ptr& lattice );

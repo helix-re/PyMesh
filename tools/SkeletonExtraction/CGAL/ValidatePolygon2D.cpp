@@ -43,7 +43,38 @@ ValidatePolygon2D::result ValidatePolygon2D::compute(const Lattice2D::Ptr& latti
         }
     }
 
-    if( poly.is_counterclockwise_oriented() ) return ValidatePolygon2D::result::COUNTERCLOCKWISE;
+    if( poly.is_clockwise_oriented() ) return ValidatePolygon2D::result::CLOCKWISE;
 
     return ValidatePolygon2D::result::SUCCESS;
+}
+
+bool ValidatePolygon2D::Hole_Inside( const Lattice2D::Ptr& lattice, const Lattice2D::Ptr& hole)
+{
+    Polygon_2 poly;
+
+    std::vector<unsigned int> indicies = lattice->GetContourIndices();
+
+    if( indicies.empty() ) return false;
+
+    for(auto& index : indicies)
+    {
+        auto v =  lattice->GetVertex(index);
+        Point point(v[0],v[1]);
+        poly.push_back(std::move(point));
+    }
+
+    std::vector<unsigned int> hole_indicies = hole->GetContourIndices();
+
+    for(auto& index : indicies)
+    {
+        auto v =  hole->GetVertex(index);
+        Point point(v[0],v[1]);
+        
+        if( !poly.has_on_bounded_side(point) )
+        {
+            return false;
+        }
+    }
+
+    return true;
 }

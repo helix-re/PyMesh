@@ -1,6 +1,6 @@
 #include "ConvexHull2D.h"
 #include "Lattice2DFactory.h"
-
+#include <Core/Exception.h>
 #include <list>
 #include <vector>
 #include <sstream>

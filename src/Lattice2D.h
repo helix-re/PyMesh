@@ -8,7 +8,7 @@
 #include <set>
 
 #include <Core/EigenTypedef.h>
-#include <Core/Exception.h>
+
 
 namespace PyMesh {
 
@@ -106,6 +106,10 @@ std::vector<unsigned int> GetContourIndices() const;
 * reverses contour
 */
 void ReverseContour();
+/*
+* converts lattice to string
+*/
+std::string ToString() const;
 protected:
 /*
 * populates edges
@@ -136,6 +140,7 @@ void BuildVertexConnections();
 * builds edge connections
 */
 void BuildEdgeConnections();
+
 protected:
 /*
 * vertices map

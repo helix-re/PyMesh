@@ -10,12 +10,11 @@
 using namespace PyMesh;
 
 
-
 ValidatePolygon2D::result ExtractSkeleton2D::validate_and_fix( Lattice2D::Ptr& lattice )
 {
     auto result = ValidatePolygon2D::compute( lattice );
 
-    if( result == ValidatePolygon2D::result::COUNTERCLOCKWISE )
+    if( result == ValidatePolygon2D::result::CLOCKWISE )
     {
         lattice->ReverseContour();
         return ValidatePolygon2D::result::SUCCESS;
@@ -23,7 +22,6 @@ ValidatePolygon2D::result ExtractSkeleton2D::validate_and_fix( Lattice2D::Ptr& l
 
     return result;
 }
-
 
 void ExtractSkeleton2D::run(const MatrixFr& points, const std::vector<MatrixFr>& holes)
 {
@@ -45,17 +43,18 @@ void ExtractSkeleton2D::run(const MatrixFr& points, const std::vector<MatrixFr>&
     {
         Lattice2D::Ptr hole_lattice = Lattice2DFactory().create(hole, true);
 
-        auto result = validate_and_fix(outer_lattice);
+        if( validate_and_fix(hole_lattice) != ValidatePolygon2D::result::SUCCESS ) continue;
 
-        if( result == ValidatePolygon2D::result::SUCCESS )
-        {
-            hole_lattices.push_back(hole_lattice);
-        }
+
+        if( !ValidatePolygon2D::Hole_Inside(outer_lattice,hole_lattice)) continue;
+
+        //holes to should be in reverse direction
+        hole_lattice->ReverseContour();
+
+        // all error checks passed
+        // add to holes list
+        hole_lattices.push_back(hole_lattice);
     }
-    //
-    // TODO:SRI we have to make sure that all holes are inside outer polygon
-    // will add this check tomorrow i.e 8-feb-2019
-    //
 
     if( hole_lattices.empty() )
     {
