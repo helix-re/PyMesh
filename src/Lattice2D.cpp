@@ -1,5 +1,6 @@
 #include "Lattice2D.h"
 #include <Core/Exception.h>
+#include <algorithm>
 
 using namespace PyMesh;
 
@@ -45,11 +46,11 @@ void Lattice2D::PopulateContour(const Matrix2Fr& contour)
     {
         Vector2F point1(contour.row(index)[0],contour.row(index)[1]);
         Vector2F point2(contour.row(index+1)[0],contour.row(index+1)[1]);
-        AddEdge(point1,point2);
+        m_contour_indicies.push_back(AddEdge(point1,point2).second.first);
     }
     Vector2F point1(contour.row(num_vertices-1)[0],contour.row(num_vertices-1)[1]);
     Vector2F point2(contour.row(0)[0],contour.row(0)[1]);
-    AddEdge(point1,point2);
+    m_contour_indicies.push_back(AddEdge(point1,point2).second.first);
 }
 
 Lattice2D::Lattice2D(const MatrixIr& edges,
@@ -74,11 +75,14 @@ Lattice2D::Lattice2D(const double& precision)
 {
 }
 
-int Lattice2D::AddEdge(const VectorF& point1, const VectorF& point2)
+std::pair<int,std::pair<unsigned int, unsigned int>>
+Lattice2D::AddEdge(const VectorF& point1, const VectorF& point2)
 {
     std::map<unsigned int,bool> edge_map;
-    edge_map.insert(AddPoint(point1));
-    edge_map.insert(AddPoint(point2));
+    auto ver_id1 = AddPoint(point1);
+    auto ver_id2 = AddPoint(point2);
+    edge_map.insert(ver_id1);
+    edge_map.insert(ver_id2);
 
     auto num_edge_points = edge_map.size();
     if(  num_edge_points !=2 )
@@ -96,7 +100,7 @@ int Lattice2D::AddEdge(const VectorF& point1, const VectorF& point2)
         //else
         //added two points might have collapsed to the existing point
         //hence nothing to do
-        return -1;
+        return {-1,{ver_id1.first,ver_id2.first} };
     }
 
     auto it_map = edge_map.begin();
@@ -109,32 +113,34 @@ int Lattice2D::AddEdge(const VectorF& point1, const VectorF& point2)
         std::pair<unsigned int,std::pair<unsigned int, unsigned int>> pr{m_edges.size(),edge_pair};
         m_edges.insert(pr);
         m_edge_indicies.insert({pr.second,pr.first});
-        return pr.first;
+        return {pr.first,{ver_id1.first,ver_id2.first}};
     }
-    return it->second;
+    return {it->second,{ver_id1.first,ver_id2.first}};
 }
 
-std::pair<MatrixIr,MatrixFr> Lattice2D::GetLattice()
+std::pair<MatrixIr,MatrixFr> Lattice2D::GetLattice() const
 {
     auto num_vertices = m_vertices.size();
     MatrixFr vertices(num_vertices,2);
     for(size_t index = 0; index < num_vertices; ++index)
     {
-        vertices(index,0) = m_vertices[index].x();
-        vertices(index,1) = m_vertices[index].y();
+        const auto& pt = m_vertices.at(index);
+        vertices(index,0) = pt.x();
+        vertices(index,1) = pt.y();
     }
 
     size_t num_edges = m_edges.size();
     MatrixIr edges(num_edges,2);
     for(size_t index = 0; index < num_edges; ++index)
     {
-        edges(index,0) = m_edges[index].first;
-        edges(index,1) = m_edges[index].second;
+        const auto& edge = m_edges.at(index);
+        edges(index,0) = edge.first;
+        edges(index,1) = edge.second;
     }
     return {edges,vertices};
 }
 
-double Lattice2D::Setprecision(double val)
+double Lattice2D::Setprecision(double val) const
 {
     double ret = m_precision * ceil( val / m_precision );
 	if ( std::isnan(ret) || !std::isfinite(ret) )
@@ -144,7 +150,7 @@ double Lattice2D::Setprecision(double val)
     return ret;
 }
 
-void Lattice2D::Setprecision(Vector2F& point)
+void Lattice2D::Setprecision(Vector2F& point) const
 {
     point[0] = Setprecision(point[0]);
     point[1] = Setprecision(point[1]);
@@ -242,7 +248,7 @@ void Lattice2D::BuildConnections()
     BuildEdgeConnections();
 }
 
-unsigned int Lattice2D::GetVertexIndex(const VectorF& point)
+unsigned int Lattice2D::GetVertexIndex(const VectorF& point) const
 {
     Vector2F precise_point = point;
     Setprecision(precise_point);
@@ -256,7 +262,7 @@ unsigned int Lattice2D::GetVertexIndex(const VectorF& point)
     throw RuntimeError(err_msg.str());
 }
 
-VectorF Lattice2D::GetVertex(unsigned int index)
+VectorF Lattice2D::GetVertex(unsigned int index) const
 {
     auto it = m_vertices.find(index);
     if(it != m_vertices.end())
@@ -269,7 +275,7 @@ VectorF Lattice2D::GetVertex(unsigned int index)
     throw RuntimeError(err_msg.str());
 }
 
-std::pair<unsigned int, unsigned int> Lattice2D::GetEdge(unsigned int index)
+std::pair<unsigned int, unsigned int> Lattice2D::GetEdge(unsigned int index) const
 {
     auto it = m_edges.find(index);
 
@@ -283,7 +289,7 @@ std::pair<unsigned int, unsigned int> Lattice2D::GetEdge(unsigned int index)
     throw RuntimeError(err_msg.str());
 }
 
-std::set<unsigned int> Lattice2D::GetVertexConnections(unsigned int vertex_index)
+std::set<unsigned int> Lattice2D::GetVertexConnections(unsigned int vertex_index) const
 {
     auto it = m_vertex_vertex_connections.find(vertex_index);
 
@@ -298,7 +304,7 @@ std::set<unsigned int> Lattice2D::GetVertexConnections(unsigned int vertex_index
     throw RuntimeError(err_msg.str());
 }
 
-std::set<unsigned int> Lattice2D::GetEdgeConnections(unsigned int vertex_index)
+std::set<unsigned int> Lattice2D::GetEdgeConnections(unsigned int vertex_index) const
 {
     auto it = m_vertex_edge_connections.find(vertex_index);
 
@@ -313,12 +319,22 @@ std::set<unsigned int> Lattice2D::GetEdgeConnections(unsigned int vertex_index)
     throw RuntimeError(err_msg.str());
 }
 
-unsigned int Lattice2D::GetNumVertices()
+unsigned int Lattice2D::GetNumVertices() const
 {
     return m_vertices.size();
 }
 
-unsigned int Lattice2D::GetNumEdges()
+unsigned int Lattice2D::GetNumEdges() const
 {
     return m_edges.size();
+}
+
+std::vector<unsigned int> Lattice2D::GetContourIndices() const
+{
+    return m_contour_indicies;
+}
+
+void Lattice2D::ReverseContour()
+{
+    std::reverse(m_contour_indicies.begin(),m_contour_indicies.end());
 }

@@ -5,7 +5,7 @@
 #include "SkeletonEngine.h"
 
 #ifdef WITH_CGAL
-#include "CGAL/CreateSkeleton2.h"
+#include "ExtractSkeleton2D.h"
 #endif
 
 using namespace PyMesh;
@@ -21,7 +21,7 @@ SkeletonEngine::Ptr SkeletonEngine::create(size_t dim, const std::string& librar
 #ifdef WITH_CGAL
     if (library_name == "cgal") {
         if (dim == 2) {
-            return std::make_shared<CreateSkeleton2>();
+            return std::make_shared<ExtractSkeleton2D>();
         } 
         else {
             std::stringstream err_msg;

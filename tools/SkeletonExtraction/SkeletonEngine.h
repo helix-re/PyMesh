@@ -3,8 +3,8 @@
 
 #include <memory>
 #include <string>
-#include <Core/EigenTypedef.h>
-#include <Core/Exception.h>
+
+#include <Lattice2D.h>
 
 namespace PyMesh {
 /**
@@ -27,11 +27,9 @@ class SkeletonEngine{
             throw NotImplementedError("This function is not implemented");
         }
 
-        MatrixIr get_edges() const { return m_edges; }
-        MatrixFr get_vertices() const { return m_vertices; }
+        Lattice2D::Ptr get_lattice() const { return m_lattice; }
     protected:
-        MatrixIr m_edges;
-        MatrixFr m_vertices;
+        Lattice2D::Ptr m_lattice;
 };
 
 } //namespace PyMesh
