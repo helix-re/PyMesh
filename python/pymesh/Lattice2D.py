@@ -16,7 +16,13 @@ class Lattice2D(object):
 
         Please see :py:mod:`create_lattice2d` for methods of creating lattice.
         """
-        self.__lattice = raw_lattice
+        self.__lattice = raw_lattice;
+
+    def __str__(self):
+         return self.__lattice.ToString();
+
+    def __repr__(self):
+         return self.__lattice.ToString();
 
     @property
     def num_vertices(self):
@@ -27,25 +33,31 @@ class Lattice2D(object):
         return self.__lattice.GetNumEdges();
 
     def add_edge(self, point1, point2):
-        self.__lattice.AddEdge(point1,point2)
+        self.__lattice.AddEdge(point1,point2);
 
     def build_connections(self):
-        self.__lattice.BuildConnections()
+        self.__lattice.BuildConnections();
 
     def get_lattice(self):
-        return self.__lattice.GetLattice()
+        return self.__lattice.GetLattice();
 
     def get_vertex_index(self, point):
-        return self.__lattice.GetVertexIndex(point)
+        return self.__lattice.GetVertexIndex(point);
 
     def get_vertex(self, index):
-        return self.__lattice.GetVertex(index)
+        return self.__lattice.GetVertex(index);
     
     def get_edge(self, index):
-        return self.__lattice.GetEdge(index)
+        return self.__lattice.GetEdge(index);
     
     def get_vertex_connections(self, vertex_index):
-        return self.__lattice.GetVertexConnections(vertex_index)
+        return self.__lattice.GetVertexConnections(vertex_index);
 
     def get_edge_connections(self, vertex_index):
-        return self.__lattice.GetEdgeConnections(vertex_index)
+        return self.__lattice.GetEdgeConnections(vertex_index);
+
+    def get_contour_indices(self):
+        return self.__lattice.GetContourIndices();
+
+    def reverse_contour(self):
+        return self.__lattice.ReverseContour();

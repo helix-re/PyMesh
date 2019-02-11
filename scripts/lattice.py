@@ -22,9 +22,7 @@ def main():
     print("num vertices : {}".format(lattice.num_vertices));
     print("num edges : {}".format(lattice.num_edges));
 
-    ret = lattice.get_lattice()
-
-    print(ret)
+    print(lattice)
 
 if __name__ == "__main__":
     main();

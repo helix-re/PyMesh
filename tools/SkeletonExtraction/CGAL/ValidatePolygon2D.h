@@ -12,20 +12,18 @@ public:
 
 enum class result : unsigned int
 {
-    SUCCESS = 0,
-    EMPTY_LATTICE = 1,
-    NOT_SIMPLE = 2,
-    COLLINEAR = 3,
-    COUNTERCLOCKWISE = 4,
-    NON_MANIFOLD = 5
+    SUCCESS             = 0,
+    EMPTY_LATTICE       = 1,
+    NOT_SIMPLE          = 2,
+    COLLINEAR           = 3,
+    NON_MANIFOLD        = 4,
+    CLOCKWISE           = 5
+    
 };
 
-void convert_to_lattice( const MatrixFr& points,
-                             const std::vector<MatrixFr>& holes,
-                             Lattice2D::Ptr& contour_lattice,
-                             std::vector<Lattice2D::Ptr>& hole_lattices);
-
 static result compute( const Lattice2D::Ptr& lattice );
+
+static bool Hole_Inside( const Lattice2D::Ptr& lattice, const Lattice2D::Ptr& hole );
 
 };
 

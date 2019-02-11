@@ -1,6 +1,15 @@
 #include "Lattice2D.h"
 #include <Core/Exception.h>
 #include <algorithm>
+#include <iostream>
+
+namespace std {
+  template <typename _CharT, typename _Traits>
+  inline basic_ostream<_CharT, _Traits> &
+  tab(basic_ostream<_CharT, _Traits> &__os) {
+    return __os.put(__os.widen('\t'));
+  }
+}
 
 using namespace PyMesh;
 
@@ -337,4 +346,77 @@ std::vector<unsigned int> Lattice2D::GetContourIndices() const
 void Lattice2D::ReverseContour()
 {
     std::reverse(m_contour_indicies.begin(),m_contour_indicies.end());
+}
+
+std::string Lattice2D::ToString() const
+{
+    std::stringstream print_msg;
+
+    print_msg << "*************************************************************" << std::endl;
+    print_msg << "************************VERTICES*****************************" << std::endl;
+    print_msg << "*************************************************************" << std::endl;
+
+    for( const auto& vetex : m_vertices )
+    {
+        print_msg << vetex.first << std::tab << "[" << vetex.second[0] << " , " << vetex.second[1] << "]" << std::tab << std::tab;
+        print_msg << "[";
+        // vertex connections
+        auto it = m_vertex_vertex_connections.find(vetex.first);
+        if( it != m_vertex_vertex_connections.end())
+        {
+            bool add_coma{false};
+            for( const auto& index : it->second )
+            {
+                if(add_coma) print_msg << ",";
+                print_msg << index;
+                add_coma = true;
+            }
+        }
+        print_msg << "]" << std::tab << std::tab;
+
+        // edge connections
+        print_msg << "[";
+        auto ite = m_vertex_edge_connections.find(vetex.first);
+        if( ite != m_vertex_vertex_connections.end())
+        {
+            bool add_coma{false};
+            for( const auto& index : ite->second )
+            {
+                if(add_coma) print_msg << ",";
+                print_msg << index;
+                add_coma = true;
+            }
+        }
+        print_msg << "]" << std::endl;
+    }
+
+    print_msg << "*************************************************************" << std::endl;
+    print_msg << "**************************EDGES******************************" << std::endl;
+    print_msg << "*************************************************************" << std::endl;
+
+
+    for( const auto& edge : m_edges )
+    {
+        print_msg << edge.first << std::tab << "[" << edge.second.first << " , " << edge.second.second << "]" << std::endl;
+    }
+
+    if(m_contour_indicies.empty())
+    {
+        print_msg << std::endl;
+        return print_msg.str();
+    }
+    print_msg << "*************************************************************" << std::endl;
+    print_msg << "**************************CONTOUR****************************" << std::endl;
+    print_msg << "*************************************************************" << std::endl;
+
+    bool add_coma{false};
+    for( const auto& index : m_contour_indicies )
+    {
+        if(add_coma) print_msg << ",";
+        print_msg << index;
+        add_coma = true;
+    }
+
+    print_msg << std::endl;
+    return print_msg.str();
 }

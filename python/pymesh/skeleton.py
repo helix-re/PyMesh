@@ -36,10 +36,9 @@ def skeleton(contour, holes, engine="auto", with_timing=False):
         finish_time = time();
         running_time = finish_time - start_time;
 
-    edges    = engine.get_edges();
-    vertices = engine.get_vertices();
+    lattice = engine.get_lattice();
     if with_timing:
-        return edges, vertices, running_time;
+        return lattice, running_time;
     else:
-        return edges, vertices;
+        return lattice;
     
