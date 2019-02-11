@@ -2,6 +2,7 @@
 #include <Core/Exception.h>
 #include <algorithm>
 #include <iostream>
+#include <boost/stacktrace.hpp>
 
 namespace std {
   template <typename _CharT, typename _Traits>
@@ -267,7 +268,8 @@ unsigned int Lattice2D::GetVertexIndex(const VectorF& point) const
         return it->second;
     }
     std::stringstream err_msg;
-    err_msg << "Vertex not found";
+    err_msg << "Vertex not found" << std::endl;
+    err_msg << boost::stacktrace::stacktrace();
     throw RuntimeError(err_msg.str());
 }
 
@@ -280,7 +282,8 @@ VectorF Lattice2D::GetVertex(unsigned int index) const
     }
 
     std::stringstream err_msg;
-    err_msg << "Vertex not found, vertex_index=" << index << " number of vertices : " << m_vertices.size();
+    err_msg << "Vertex not found, vertex_index=" << index << " number of vertices : " << m_vertices.size() << std::endl;
+    err_msg << boost::stacktrace::stacktrace();
     throw RuntimeError(err_msg.str());
 }
 
@@ -294,7 +297,8 @@ std::pair<unsigned int, unsigned int> Lattice2D::GetEdge(unsigned int index) con
     }
 
     std::stringstream err_msg;
-    err_msg << "Edge not found, edge_index=" << index << " number of edges : " << m_edges.size();
+    err_msg << "Edge not found, edge_index=" << index << " number of edges : " << m_edges.size() << std::endl;
+    err_msg << boost::stacktrace::stacktrace();
     throw RuntimeError(err_msg.str());
 }
 
@@ -309,7 +313,8 @@ std::set<unsigned int> Lattice2D::GetVertexConnections(unsigned int vertex_index
 
     std::stringstream err_msg;
     err_msg << "vertex connections not found, vertex_index=" << vertex_index 
-            << " number of vertex to set of vertices connection : " << m_vertex_vertex_connections.size();
+            << " number of vertex to set of vertices connection : " << m_vertex_vertex_connections.size() << std::endl;
+    err_msg << boost::stacktrace::stacktrace();
     throw RuntimeError(err_msg.str());
 }
 
@@ -324,7 +329,8 @@ std::set<unsigned int> Lattice2D::GetEdgeConnections(unsigned int vertex_index) 
 
     std::stringstream err_msg;
     err_msg << "edge connections not found, vertex_index=" << vertex_index 
-            << " number of vertex to set of edge connection : " << m_vertex_edge_connections.size();
+            << " number of vertex to set of edge connection : " << m_vertex_edge_connections.size() << std::endl;
+    err_msg << boost::stacktrace::stacktrace();
     throw RuntimeError(err_msg.str());
 }
 

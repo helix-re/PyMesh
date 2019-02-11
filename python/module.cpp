@@ -3,6 +3,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>
 #include <pybind11/stl.h>
+#include <pybind11/iostream.h>
 
 namespace py = pybind11;
 
@@ -74,4 +75,5 @@ PYBIND11_MODULE(PyMesh, m) {
     init_BVH(m);
     init_Geogram(m);
     init_Compression(m);
+    py::add_ostream_redirect(m, "ostream_redirect");
 }
