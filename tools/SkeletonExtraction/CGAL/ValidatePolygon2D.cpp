@@ -65,7 +65,7 @@ bool ValidatePolygon2D::Hole_Inside( const Lattice2D::Ptr& lattice, const Lattic
 
     std::vector<unsigned int> hole_indicies = hole->GetContourIndices();
 
-    for(auto& index : indicies)
+    for(auto& index : hole_indicies)
     {
         auto v =  hole->GetVertex(index);
         Point point(v[0],v[1]);

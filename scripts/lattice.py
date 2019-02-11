@@ -17,6 +17,8 @@ def main():
     
     print(contor)
 
+    empty_lattice = pymesh.create_lattice()
+
     lattice = pymesh.create_contour_lattice2d(contor)
 
     print("num vertices : {}".format(lattice.num_vertices));
