@@ -15,6 +15,7 @@ PYBIND11_ADD_MODULE(PyMesh module.cpp
     PyMeshFactory.cpp
     PyLattice2D.cpp
     PyLattice2DFactory.cpp
+    PyLatticeAlgorithms.cpp
     PyMeshWriter.cpp
     PyOuterHull.cpp
     PyPredicates.cpp
@@ -41,6 +42,7 @@ TARGET_LINK_LIBRARIES(PyMesh PRIVATE
     PyMesh::Tools::ConvexHull
     PyMesh::Tools::SelfIntersection
     PyMesh::Tools::SkeletonExtraction
+    PyMesh::Tools::LatticeAlgorithms
     PyMesh::Tools::Boolean
     PyMesh::Tools::BVH
     PyMesh::Tools::OuterHull

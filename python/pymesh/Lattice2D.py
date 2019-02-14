@@ -32,6 +32,9 @@ class Lattice2D(object):
     def num_edges(self):
         return self.__lattice.GetNumEdges();
 
+    def my_lattice(self):
+        return self.__lattice;
+
     def add_edge(self, point1, point2):
         self.__lattice.AddEdge(point1,point2);
 

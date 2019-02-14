@@ -33,11 +33,11 @@ ValidatePolygon2D::result ValidatePolygon2D::compute(const Lattice2D::Ptr& latti
     //check non manifold scenario for the contour
     for(auto& index : indicies)
     {
-        if( lattice->GetVertexConnections(index).size() != 2 )
+        if( lattice->GetVertexToVertexConnections(index).size() != 2 )
         {
             return ValidatePolygon2D::result::NON_MANIFOLD;
         }
-        if( lattice->GetEdgeConnections(index).size()   != 2 )
+        if( lattice->GetVertexToEdgeConnections(index).size()   != 2 )
         {
             return ValidatePolygon2D::result::NON_MANIFOLD;
         }
