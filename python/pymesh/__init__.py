@@ -20,6 +20,7 @@ from .meshio import load_mesh, form_mesh, save_mesh, save_mesh_raw
 from .Lattice2D import Lattice2D
 from .lattice_creator import create_lattice
 from .create_lattice2d import create_lattice2d, create_empty_lattice2d, create_contour_lattice2d, create_edge_vertices_lattice2d
+from .lattice_algorithms import lattice_sort_topology, lattice_detect_segments
 from .Arrangement2 import Arrangement2
 from .Assembler import Assembler
 from .boolean import boolean

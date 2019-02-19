@@ -32,6 +32,28 @@ Lattice2D::Lattice2D(const MatrixFr& mat,
     BuildConnections();
 }
 
+Lattice2D::Lattice2D(const MatrixIr& edges,
+          const MatrixFr vertices,
+          const double& precision)
+          :m_precision(precision)
+{
+    //constructor might crash if there is a missmatch in the edges and vertices
+    std::size_t num_edges = edges.rows();
+
+    for(std::size_t index=0; index < num_edges; ++index)
+    {
+        Vector2F point1(vertices.row(edges.row(index)[0])[0],vertices.row(edges.row(index)[0])[1]);
+        Vector2F point2(vertices.row(edges.row(index)[1])[0],vertices.row(edges.row(index)[1])[1]);
+        AddEdge(point1,point2);
+    }
+    BuildConnections();
+}
+
+Lattice2D::Lattice2D(const double& precision)
+:m_precision(precision)
+{
+}
+
 void Lattice2D::PopulateEdges(const Matrix4Fr& edges)
 {
     std::size_t num_edges = edges.rows();
@@ -63,60 +85,48 @@ void Lattice2D::PopulateContour(const Matrix2Fr& contour)
     m_contour_indicies.push_back(AddEdge(point1,point2).second.first);
 }
 
-Lattice2D::Lattice2D(const MatrixIr& edges,
-          const MatrixFr vertices,
-          const double& precision)
-          :m_precision(precision)
+double Lattice2D::Distance(const Vector2F& point1, const Vector2F& point2)
 {
-    //constructor might crash if there is a missmatch in the edges and vertices
-    std::size_t num_edges = edges.rows();
-
-    for(std::size_t index=0; index < num_edges; ++index)
-    {
-        Vector2F point1(vertices.row(edges.row(index)[0])[0],vertices.row(edges.row(index)[0])[1]);
-        Vector2F point2(vertices.row(edges.row(index)[1])[0],vertices.row(edges.row(index)[1])[1]);
-        AddEdge(point1,point2);
-    }
-    BuildConnections();
-}
-
-Lattice2D::Lattice2D(const double& precision)
-:m_precision(precision)
-{
+    return std::sqrt( (point2[1]-point1[1]) * (point2[1]-point1[1]) +
+                      (point2[0]-point1[0]) * (point2[0]-point1[0]) );
 }
 
 std::pair<int,std::pair<unsigned int, unsigned int>>
 Lattice2D::AddEdge(const VectorF& point1, const VectorF& point2)
 {
     std::map<unsigned int,bool> edge_map;
-    auto ver_id1 = AddPoint(point1);
-    auto ver_id2 = AddPoint(point2);
+    Vector2F p1(point1), p2(point2);
+
+    Setprecision(p1);
+    Setprecision(p2);
+
+    if( Distance(p1,p2) < m_precision )
+    {
+        return {-1,{0,0} };
+    }
+
+    auto ver_id1 = AddPoint(p1);
+    auto ver_id2 = AddPoint(p2);
+
     edge_map.insert(ver_id1);
     edge_map.insert(ver_id2);
 
     auto num_edge_points = edge_map.size();
     if(  num_edge_points !=2 )
     {
-        //
-        // edge might be smaller than the precision
-        // two points might have collapsed to the same point
-        //
-        if( num_edge_points == 1 && edge_map.begin()->second )
-        {
-            //here added point should be deleted
-            m_vertices.erase(std::prev(m_vertices.end(), 1));
-            m_vertex_indices.erase(std::prev(m_vertex_indices.end(), 1));
-        }
-        //else
-        //added two points might have collapsed to the existing point
-        //hence nothing to do
-        return {-1,{ver_id1.first,ver_id2.first} };
+        DeletePoint( p1 );
+        DeletePoint( p2 );
+        std::stringstream err_msg;
+        err_msg << "error in adding edge";
+        err_msg << boost::stacktrace::stacktrace();
+        throw RuntimeError(err_msg.str());
     }
 
     auto it_map = edge_map.begin();
     std::pair<unsigned int,unsigned int> edge_pair{it_map->first,(++it_map)->first};
 
     auto it = m_edge_indicies.find(edge_pair);
+
     // new edge so add else ignore
     if( it == m_edge_indicies.end())
     {
@@ -152,10 +162,13 @@ std::pair<MatrixIr,MatrixFr> Lattice2D::GetLattice() const
 
 double Lattice2D::Setprecision(double val) const
 {
-    double ret = m_precision * ceil( val / m_precision );
+    double ret = m_precision * round( val / m_precision );
 	if ( std::isnan(ret) || !std::isfinite(ret) )
 	{
-		ret = 0.0;
+        std::stringstream err_msg;
+		err_msg << "failed to set precision "<< std::endl;
+        err_msg << boost::stacktrace::stacktrace();
+        throw RuntimeError(err_msg.str());
 	}
     return ret;
 }
@@ -169,8 +182,6 @@ void Lattice2D::Setprecision(Vector2F& point) const
 std::pair<unsigned int,bool> Lattice2D::AddPoint(const Vector2F& point)
 {
     Vector2F precise_point = point;
-
-    Setprecision(precise_point);
 
     auto it = m_vertex_indices.find(point);
     //new point
@@ -186,7 +197,31 @@ std::pair<unsigned int,bool> Lattice2D::AddPoint(const Vector2F& point)
     return {it->second,false};
 }
 
-void Lattice2D::BuildVertexConnections()
+bool Lattice2D::DeletePoint(const Vector2F& point)
+{
+    if(m_vertex_indices.empty()) return false;
+
+    auto it = m_vertex_indices.find(point);
+
+    if( it == m_vertex_indices.end() )
+    {
+        return false;
+    }
+
+    // delete only if its a last element
+    if( Distance( it->first , m_vertex_indices.rbegin()->first ) < m_precision )
+    {
+        m_vertex_indices.erase(it);
+        return true;
+    }
+
+    std::stringstream err_msg;
+    err_msg << "failed to delete a point "<< std::endl;
+    err_msg << boost::stacktrace::stacktrace();
+    throw RuntimeError(err_msg.str());
+}
+
+void Lattice2D::BuildVertexVertexConnections()
 {
     m_vertex_vertex_connections = std::map<unsigned int,std::set<unsigned int>>();
 
@@ -218,7 +253,7 @@ void Lattice2D::BuildVertexConnections()
     }
 }
 
-void Lattice2D::BuildEdgeConnections()
+void Lattice2D::BuildVertexEdgeConnections()
 {
     m_vertex_edge_connections = std::map<unsigned int,std::set<unsigned int>>();
 
@@ -252,10 +287,44 @@ void Lattice2D::BuildEdgeConnections()
     }
 }
 
+void Lattice2D::BuildEdgeEdgeConnections()
+{
+    m_edge_edge_connections = std::map<unsigned int,std::set<unsigned int>>();
+
+    for( const auto& edge : m_edges )
+    {
+        const auto& edge_index = edge.first;
+        const auto& vertices_pr = edge.second;
+
+        std::set<unsigned int> edge_connections;
+
+        auto it1 = m_vertex_edge_connections.find(vertices_pr.first);
+        auto it2 = m_vertex_edge_connections.find(vertices_pr.second);
+
+        if (it1 != m_vertex_edge_connections.end())
+        {
+            edge_connections.insert( it1->second.begin(), it1->second.end() );
+        }
+
+        if (it2 != m_vertex_edge_connections.end())
+        {
+            edge_connections.insert( it2->second.begin(), it2->second.end() );
+        }
+
+        auto it = edge_connections.find( edge_index );
+        if (it != edge_connections.end())
+        {
+            edge_connections.erase( it );
+        }
+        m_edge_edge_connections.insert( { edge_index , edge_connections } );
+    }
+}
+
 void Lattice2D::BuildConnections()
 {
-    BuildVertexConnections();
-    BuildEdgeConnections();
+    BuildVertexVertexConnections();
+    BuildVertexEdgeConnections();
+    BuildEdgeEdgeConnections();
 }
 
 unsigned int Lattice2D::GetVertexIndex(const VectorF& point) const
@@ -302,7 +371,7 @@ std::pair<unsigned int, unsigned int> Lattice2D::GetEdge(unsigned int index) con
     throw RuntimeError(err_msg.str());
 }
 
-std::set<unsigned int> Lattice2D::GetVertexConnections(unsigned int vertex_index) const
+std::set<unsigned int> Lattice2D::GetVertexToVertexConnections(unsigned int vertex_index) const
 {
     auto it = m_vertex_vertex_connections.find(vertex_index);
 
@@ -318,7 +387,7 @@ std::set<unsigned int> Lattice2D::GetVertexConnections(unsigned int vertex_index
     throw RuntimeError(err_msg.str());
 }
 
-std::set<unsigned int> Lattice2D::GetEdgeConnections(unsigned int vertex_index) const
+std::set<unsigned int> Lattice2D::GetVertexToEdgeConnections(unsigned int vertex_index) const
 {
     auto it = m_vertex_edge_connections.find(vertex_index);
 
@@ -330,6 +399,23 @@ std::set<unsigned int> Lattice2D::GetEdgeConnections(unsigned int vertex_index) 
     std::stringstream err_msg;
     err_msg << "edge connections not found, vertex_index=" << vertex_index 
             << " number of vertex to set of edge connection : " << m_vertex_edge_connections.size() << std::endl;
+    err_msg << boost::stacktrace::stacktrace();
+    throw RuntimeError(err_msg.str());
+}
+
+
+std::set<unsigned int> Lattice2D::GetEdgeToEdgeConnections(unsigned int edge_index) const
+{
+    auto it = m_edge_edge_connections.find(edge_index);
+
+    if(it != m_edge_edge_connections.end())
+    {
+        return it->second;
+    }
+
+    std::stringstream err_msg;
+    err_msg << "edge to edge connections not found, edge_index=" << edge_index 
+            << " number of edge to set of edge connection : " << m_edge_edge_connections.size() << std::endl;
     err_msg << boost::stacktrace::stacktrace();
     throw RuntimeError(err_msg.str());
 }
@@ -358,6 +444,8 @@ std::string Lattice2D::ToString() const
 {
     std::stringstream print_msg;
 
+    print_msg << " number of vertices : " << m_vertices.size() << std::endl;
+    print_msg << " number of edges    : " << m_edges.size() << std::endl;
     print_msg << "*************************************************************" << std::endl;
     print_msg << "************************VERTICES*****************************" << std::endl;
     print_msg << "*************************************************************" << std::endl;
@@ -403,7 +491,21 @@ std::string Lattice2D::ToString() const
 
     for( const auto& edge : m_edges )
     {
-        print_msg << edge.first << std::tab << "[" << edge.second.first << " , " << edge.second.second << "]" << std::endl;
+        print_msg << edge.first << std::tab << "[" << edge.second.first << " , " << edge.second.second << "]" << std::tab << std::tab;
+        print_msg << "[";
+        // vertex connections
+        auto it = m_edge_edge_connections.find(edge.first);
+        if( it != m_edge_edge_connections.end())
+        {
+            bool add_coma{false};
+            for( const auto& index : it->second )
+            {
+                if(add_coma) print_msg << ",";
+                print_msg << index;
+                add_coma = true;
+            }
+        }
+        print_msg << "]" << std::endl;
     }
 
     if(m_contour_indicies.empty())

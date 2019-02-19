@@ -84,12 +84,18 @@ std::pair<unsigned int, unsigned int> GetEdge(unsigned int index) const;
 * returns vertex connections of a given vertex index
 * set of vertex indices
 */
-std::set<unsigned int> GetVertexConnections(unsigned int vertex_index) const;
+std::set<unsigned int> GetVertexToVertexConnections(unsigned int vertex_index) const;
 /*
 * returns edge connections of a given vertex index
 * set of edge indices
 */
-std::set<unsigned int> GetEdgeConnections(unsigned int vertex_index) const;
+std::set<unsigned int> GetVertexToEdgeConnections(unsigned int vertex_index) const;
+/*
+* returns edge connections of a given vertex index
+* set of edge indices
+*/
+std::set<unsigned int> GetEdgeToEdgeConnections(unsigned int edge_index) const;
+
 /*
 * returns number of vertices
 */
@@ -125,6 +131,10 @@ void PopulateContour(const Matrix2Fr& contour);
 */
 std::pair<unsigned int,bool> AddPoint(const Vector2F& point);
 /*
+* deletes point true if successful else false
+*/
+bool DeletePoint(const Vector2F& point);
+/*
 * applies precision
 */
 void Setprecision(Vector2F& point) const;
@@ -135,12 +145,19 @@ double Setprecision(double val) const;
 /*
 * builds vertex connections
 */
-void BuildVertexConnections();
+void BuildVertexVertexConnections();
 /*
 * builds edge connections
 */
-void BuildEdgeConnections();
-
+void BuildVertexEdgeConnections();
+/*
+* builds edge to  edge connections
+*/
+void BuildEdgeEdgeConnections();
+/*
+* distance between points
+*/
+double Distance(const Vector2F& point1, const Vector2F& point2);
 protected:
 /*
 * vertices map
@@ -181,6 +198,11 @@ std::map<unsigned int,std::set<unsigned int>> m_vertex_vertex_connections;
 * set is connected edge indicies
 */
 std::map<unsigned int,std::set<unsigned int>> m_vertex_edge_connections;
+/*
+* edge to edge connections
+* set is connected edge indicies
+*/
+std::map<unsigned int,std::set<unsigned int>> m_edge_edge_connections;
 /*
 * current precision
 */

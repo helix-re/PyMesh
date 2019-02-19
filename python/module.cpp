@@ -11,6 +11,7 @@ void init_Mesh(py::module&);
 void init_MeshFactory(py::module&);
 void init_Lattice2D(py::module&);
 void init_Lattice2DFactory(py::module&);
+void init_LatticeAlgorithms(py::module&);
 void init_MeshWriter(py::module&);
 void init_MeshUtils(py::module&);
 void init_predicates(py::module&);
@@ -47,6 +48,7 @@ PYBIND11_MODULE(PyMesh, m) {
 
     init_Lattice2D(m);
     init_Lattice2DFactory(m);
+    init_LatticeAlgorithms(m);
 
     init_MeshWriter(m);
     init_MeshUtils(m);
@@ -75,5 +77,5 @@ PYBIND11_MODULE(PyMesh, m) {
     init_BVH(m);
     init_Geogram(m);
     init_Compression(m);
-    py::add_ostream_redirect(m, "ostream_redirect");
+    add_ostream_redirect(m);
 }
