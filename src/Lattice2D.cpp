@@ -181,14 +181,13 @@ void Lattice2D::Setprecision(Vector2F& point) const
 
 std::pair<unsigned int,bool> Lattice2D::AddPoint(const Vector2F& point)
 {
-    Vector2F precise_point = point;
 
     auto it = m_vertex_indices.find(point);
     //new point
     if(it == m_vertex_indices.end())
     {
         //add new point
-        std::pair<unsigned int, Vector2F> pr = {m_vertices.size(),precise_point};
+        std::pair<unsigned int, Vector2F> pr = {m_vertices.size(),point};
         m_vertices.insert(pr);
         m_vertex_indices.insert({pr.second,pr.first});
         return {pr.first,true};
